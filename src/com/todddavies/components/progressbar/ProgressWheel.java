@@ -2,14 +2,12 @@ package com.todddavies.components.progressbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Style;
-import android.graphics.RectF;
-import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 
@@ -53,20 +51,20 @@ public class ProgressWheel extends View {
     private Paint circlePaint = new Paint();
     private Paint rimPaint = new Paint();
     private Paint textPaint = new Paint();
-    private Paint contourPaint = new Paint();
+//    private Paint contourPaint = new Paint();
 
     //Rectangles
     @SuppressWarnings("unused")
     private RectF rectBounds = new RectF();
     private RectF circleBounds = new RectF();
-    private RectF circleOuterContour = new RectF();
-    private RectF circleInnerContour = new RectF();
+//    private RectF circleOuterContour = new RectF();
+//    private RectF circleInnerContour = new RectF();
 
     //Animation
     //The amount of pixels to move the bar by on each draw
-    private int spinSpeed = 2;
+    private float spinSpeed = 0.01f;
     //The number of milliseconds to wait inbetween each draw
-    private int delayMillis = 0;
+    private int delayMillis = 60;
     private Handler spinHandler = new Handler() {
         /**
          * This is the code that will increment the progress variable
@@ -85,7 +83,7 @@ public class ProgressWheel extends View {
             //super.handleMessage(msg);
         }
     };
-    int progress = 0;
+    float progress = 0;
     boolean isSpinning = false;
 
     //Other
@@ -116,22 +114,22 @@ public class ProgressWheel extends View {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    	// The first thing that happen is that we call the superclass 
-    	// implementation of onMeasure. The reason for that is that measuring 
-    	// can be quite a complex process and calling the super method is a 
-    	// convenient way to get most of this complexity handled.
-    	super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // The first thing that happen is that we call the superclass
+        // implementation of onMeasure. The reason for that is that measuring
+        // can be quite a complex process and calling the super method is a
+        // convenient way to get most of this complexity handled.
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-    	// We can’t use getWidth() or getHight() here. During the measuring 
-    	// pass the view has not gotten its final size yet (this happens first 
-    	// at the start of the layout pass) so we have to use getMeasuredWidth() 
-    	// and getMeasuredHeight().
+        // We can’t use getWidth() or getHight() here. During the measuring
+        // pass the view has not gotten its final size yet (this happens first
+        // at the start of the layout pass) so we have to use getMeasuredWidth()
+        // and getMeasuredHeight().
         int size = 0;
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         int widthWithoutPadding = width - getPaddingLeft() - getPaddingRight();
         int heigthWithoutPadding = height - getPaddingTop() - getPaddingBottom();
-        
+
         // Finally we have some simple logic that calculates the size of the view 
         // and calls setMeasuredDimension() to set that size.
         // Before we compare the width and height of the view, we remove the padding, 
@@ -143,7 +141,7 @@ public class ProgressWheel extends View {
         } else {
             size = widthWithoutPadding;
         }
-        
+
         // If you override onMeasure() you have to call setMeasuredDimension(). 
         // This is how you report back the measured size.  If you don’t call
         // setMeasuredDimension() the parent will throw an exception and your 
@@ -183,25 +181,36 @@ public class ProgressWheel extends View {
         barPaint.setAntiAlias(true);
         barPaint.setStyle(Style.STROKE);
         barPaint.setStrokeWidth(barWidth);
+        barPaint.setStrokeCap(Paint.Cap.ROUND);
+        barPaint.setStrokeJoin(Paint.Join.ROUND);
+        SweepGradient sweepGradient = new SweepGradient(circleBounds.centerX(), circleBounds.centerY(),new int[]{Color.parseColor("#00c300"), Color.parseColor("#e6d058"), Color.parseColor("#ee621e"), Color.parseColor("#00c300")},null);
+        barPaint.setShader(sweepGradient);
 
         rimPaint.setColor(rimColor);
         rimPaint.setAntiAlias(true);
         rimPaint.setStyle(Style.STROKE);
         rimPaint.setStrokeWidth(rimWidth);
+        rimPaint.setStrokeCap(Paint.Cap.ROUND);
+        rimPaint.setStrokeJoin(Paint.Join.ROUND);
 
         circlePaint.setColor(circleColor);
         circlePaint.setAntiAlias(true);
         circlePaint.setStyle(Style.FILL);
+        circlePaint.setStyle(Style.STROKE);
+        circlePaint.setStrokeWidth(rimWidth);
+        circlePaint.setStrokeCap(Paint.Cap.ROUND);
+        circlePaint.setStrokeJoin(Paint.Join.ROUND);
+
 
         textPaint.setColor(textColor);
         textPaint.setStyle(Style.FILL);
         textPaint.setAntiAlias(true);
         textPaint.setTextSize(textSize);
 
-        contourPaint.setColor(contourColor);
-        contourPaint.setAntiAlias(true);
-        contourPaint.setStyle(Style.STROKE);
-        contourPaint.setStrokeWidth(contourSize);
+//        contourPaint.setColor(contourColor);
+//        contourPaint.setAntiAlias(true);
+//        contourPaint.setStyle(Style.STROKE);
+//        contourPaint.setStrokeWidth(contourSize);
     }
 
     /**
@@ -233,8 +242,8 @@ public class ProgressWheel extends View {
                 paddingTop + barWidth,
                 width - paddingRight - barWidth,
                 height - paddingBottom - barWidth);
-        circleInnerContour = new RectF(circleBounds.left + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.top + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.right - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.bottom - (rimWidth / 2.0f) - (contourSize / 2.0f));
-        circleOuterContour = new RectF(circleBounds.left - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.top - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.right + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.bottom + (rimWidth / 2.0f) + (contourSize / 2.0f));
+//        circleInnerContour = new RectF(circleBounds.left + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.top + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.right - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.bottom - (rimWidth / 2.0f) - (contourSize / 2.0f));
+//        circleOuterContour = new RectF(circleBounds.left - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.top - (rimWidth / 2.0f) - (contourSize / 2.0f), circleBounds.right + (rimWidth / 2.0f) + (contourSize / 2.0f), circleBounds.bottom + (rimWidth / 2.0f) + (contourSize / 2.0f));
 
         fullRadius = (width - paddingRight - barWidth) / 2;
         circleRadius = (fullRadius - barWidth) + 1;
@@ -297,42 +306,45 @@ public class ProgressWheel extends View {
 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        // Rotate canvas
+        canvas.rotate(270, circleBounds.centerX(), circleBounds.centerY());
         //Draw the inner circle
         canvas.drawArc(circleBounds, 360, 360, false, circlePaint);
         //Draw the rim
         canvas.drawArc(circleBounds, 360, 360, false, rimPaint);
-        canvas.drawArc(circleOuterContour, 360, 360, false, contourPaint);
-        canvas.drawArc(circleInnerContour, 360, 360, false, contourPaint);
+
+
+//        canvas.drawArc(circleOuterContour, 360, 360, false, contourPaint);
+//        canvas.drawArc(circleInnerContour, 360, 360, false, contourPaint);
         //Draw the bar
         if (isSpinning) {
-            canvas.drawArc(circleBounds, progress - 90, barLength, false,
-                    barPaint);
+            canvas.drawArc(circleBounds, progress - 90, 90, false, barPaint);
         } else {
-            canvas.drawArc(circleBounds, -90, progress, false, barPaint);
+            canvas.drawArc(circleBounds, 5, progress, false, barPaint);
         }
         //Draw the text (attempts to center it horizontally and vertically)
-        float textHeight = textPaint.descent() - textPaint.ascent();
-        float verticalTextOffset = (textHeight / 2) - textPaint.descent();
+//        float textHeight = textPaint.descent() - textPaint.ascent();
+//        float verticalTextOffset = (textHeight / 2) - textPaint.descent();
 
-        for (String s : splitText) {
-            float horizontalTextOffset = textPaint.measureText(s) / 2;
-            canvas.drawText(s, this.getWidth() / 2 - horizontalTextOffset,
-                    this.getHeight() / 2 + verticalTextOffset, textPaint);
-        }
+//        for (String s : splitText) {
+//            float horizontalTextOffset = textPaint.measureText(s) / 2;
+//            canvas.drawText(s, this.getWidth() / 2 - horizontalTextOffset,
+//                    this.getHeight() / 2 + verticalTextOffset, textPaint);
+//        }
     }
 
     /**
-    *   Check if the wheel is currently spinning
-    */
-    
+     * Check if the wheel is currently spinning
+     */
+
     public boolean isSpinning() {
-        if(isSpinning){
+        if (isSpinning) {
             return true;
         } else {
             return false;
         }
     }
-    
+
     /**
      * Reset the count (in increment mode)
      */
@@ -365,9 +377,9 @@ public class ProgressWheel extends View {
      */
     public void incrementProgress() {
         isSpinning = false;
-        progress++;
-        if (progress > 360)
-            progress = 0;
+        progress+=0.3f;
+//        if (progress > 360)
+//            progress = 0;
 //        setText(Math.round(((float) progress / 360) * 100) + "%");
         spinHandler.sendEmptyMessage(0);
     }
@@ -502,11 +514,11 @@ public class ProgressWheel extends View {
         this.textColor = textColor;
     }
 
-    public int getSpinSpeed() {
+    public float getSpinSpeed() {
         return spinSpeed;
     }
 
-    public void setSpinSpeed(int spinSpeed) {
+    public void setSpinSpeed(float spinSpeed) {
         this.spinSpeed = spinSpeed;
     }
 
