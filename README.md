@@ -3,6 +3,12 @@ Colorful For Progress Wheel
 
 This is a custom component for Android intended for use instead of a progress bar.
 
+Using SweepGradient, Custom color for progress bar
+
+SweepGradient sweepGradient = new SweepGradient(circleBounds.centerX(), circleBounds.centerY(),
+    new int[]{Color.parseColor("#00c300"), Color.parseColor("#e6d058"), Color.parseColor("#ee621e"), Color.parseColor("#00c300")},null);
+barPaint.setShader(sweepGradient);
+
 ![Sample Image](https://github.com/Jinbangzhu/ProgressWheel/raw/master/sample.gif "An example implementation")
 
 A complete walkthrough of how to use this component in your app
