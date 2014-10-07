@@ -4,10 +4,6 @@ Colorful For Progress Wheel
 This is a custom component for Android intended for use instead of a progress bar.
 
 ![Sample Image](https://github.com/Jinbangzhu/ProgressWheel/raw/master/sample.gif "An example implementation")
-![Sample Image](https://github.com/Todd-Davies/ProgressWheel/raw/master/sample_image.png "An example implementation")
-![Sample Image 2](https://github.com/Todd-Davies/ProgressWheel/raw/master/sample_image_2.png "Another example implementation")
-![Sample Image 3](https://github.com/Todd-Davies/ProgressWheel/raw/master/sample_image_3.png "Another example implementation")
-![Sample Image 4](https://github.com/Todd-Davies/ProgressWheel/raw/master/sample_image_4.png "Another example implementation")
 
 A complete walkthrough of how to use this component in your app
 -------------
@@ -40,19 +36,18 @@ To implement the view in your xml layout do the following:
 
 3. Add the widget code in the appropriate place in your xml file. Here's a sample implementation:
 ``` xml
-<com.todddavies.components.progressbar.ProgressWheel   
-    android:id="@+id/pw_spinner"     
-    android:layout_width="200dp"    
-    android:layout_height="200dp"   
-    android:layout_centerInParent="true"   
-    ProgressWheel:text="Authenticating..."    
-    ProgressWheel:textColor="#222"   
-    ProgressWheel:textSize="14sp"   
-    ProgressWheel:rimColor="#330097D6"   
-    ProgressWheel:barLength="60dp"    
-    ProgressWheel:barColor="#0097D6"   
-    ProgressWheel:barWidth="5dp"   
-    ProgressWheel:rimWidth="2dp" /> 
+ <com.todddavies.components.progressbar.ProgressWheel
+   android:id="@+id/progressBarTwo"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   ProgressWheel:textColor="#fff"
+   ProgressWheel:textSize="44sp"
+   ProgressWheel:rimColor="#2d2d2d"
+   ProgressWheel:barLength="60dp"
+   ProgressWheel:barColor="#fff"
+   ProgressWheel:barWidth="10dp"
+   ProgressWheel:rimWidth="10dp"
+   ProgressWheel:spinSpeed="3dp"/>
 ```
 	
 **Java:**   
@@ -87,7 +82,3 @@ instead of the above:
 
 `xmlns:ProgressWheel="http://schemas.android.com/apk/res-auto"`
 
-Otherwise, usage should be the same.
-
-
-Todd Davies - 2012
